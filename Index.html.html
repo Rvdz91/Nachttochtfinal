@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nachttocht</title>
+
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #111;
+  color: white;
+  margin: 0;
+  padding: 20px;
+}
+
+input, button {
+  padding: 14px;
+  font-size: 18px;
+  margin-top: 10px;
+  width: 80%;
+  max-width: 300px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  background: #333;
+  color: white;
+}
+
+.red {
+  background: darkred;
+  color: white;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+
+.green {
+  background: darkgreen;
+  color: white;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🌙 Nachttocht</h1>
+
+<div id="start">
+  <input id="team" placeholder="Teamnaam">
+  <br>
+  <button onclick="startGame()">Start</button>
+</div>
+
+<div id="game" style="display:none;">
+  <h2 id="question"></h2>
+  <input id="answer" placeholder="Antwoord">
+  <br>
+  <button id="btn" onclick="check()">Check</button>
+  <p id="result"></p>
+</div>
+
+<script>
+
+let testMode = true; // 👉 zet op true voor testversie
+
+let step = 0;
+let locked = false;
+let teamName = "";
+let timeLeft = 0;
+
+const roasts = [
+"Dit is niet eens fout… dit is zorgwekkend",
+"Hebben jullie dit serieus samen bedacht?",
+"Zelfs een boom had dit beter gedaan 🌳",
+"Ik zou opnieuw beginnen met denken",
+"Dit antwoord deed pijn",
+"Zijn jullie moe of gewoon slecht?",
+"Dit niveau is echt schokkend"
+];
+
+const wrongLocation = [
+"Jullie zitten zo verkeerd dat Google Maps jullie heeft opgegeven",
+"Dit is niet eens in de buurt. Probeer opnieuw",
+"Loop. Gewoon… loop ergens anders heen",
+"Serieus? Kijk eens om je heen",
+"Dit is een ander universum, probeer opnieuw"
+];
+
+const good = [
+"Oké dit was verrassend competent",
+"Niet slecht… voor amateurs",
+"We vermoeden valsspelen",
+"Eindelijk. We waren al bang",
+"Prima. Ga maar door"
+];
+
+const steps = [
+{
+q: "Hier ligt Jos, de buurman van Wout. Wat is de voornaam van de persoon waar Jos zijn plicht aan vervulde?",
+a: "wilhelmina",
+lat: 50.7549,
+lon: 5.9786
+},
+{
+q: "Joey ligt graag aan een nudistenstrand in zijn vrije tijd. Hoe lang geleden was hier nog zee? (cijfers)",
+a: "12000000",
+lat: 50.7725,
+lon: 5.9517
+},
+{
+q: "Welkom bij het Emmaus. Wat eet de rowanleiding het liefste?",
+a: "frikandellenkapsalon",
+lat: 50.7779,
+lon: 5.9485
+}
+];
+
+function startGame() {
+  teamName = document.getElementById("team").value || "Onbekend team";
+  document.getElementById("start").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  load();
+}
+
+function load() {
+  document.getElementById("question").innerText = steps[step].q;
+  document.getElementById("answer").value = "";
+  document.getElementById("result").innerText = "";
+}
+
+function distance(a,b,c,d){
+  return Math.sqrt((a-c)**2 + (b-d)**2);
+}
+
+function check(){
+
+if(locked) return;
+
+navigator.geolocation.getCurrentPosition(pos => {
+
+let lat = pos.coords.latitude;
+let lon = pos.coords.longitude;
+
+if(!testMode){
+  if(distance(lat,lon,steps[step].lat,steps[step].lon) > 0.0007){
+    show(random(wrongLocation), "red");
+    return;
+  }
+}
+
+let ans = document.getElementById("answer").value.toLowerCase().replace(/\s/g,'');
+
+if(ans === steps[step].a){
+
+  show(random(good) + "<br><br>➡️ Ga naar de volgende locatie", "green");
+
+  step++;
+
+  if(step >= steps.length){
+    setTimeout(()=> {
+      document.body.innerHTML = `
+      <h1>🏁 Welkom op het kampterrein</h1>
+      <p>Team ${teamName}, jullie hebben het overleefd… </p>
+      `;
+    },2000);
+    return;
+  }
+
+  setTimeout(load,2500);
+
+}else{
+  locked = true;
+  timeLeft = 90;
+  document.getElementById("btn").disabled = true;
+
+  let interval = setInterval(() => {
+    timeLeft--;
+    show(random(roasts) + `<br><br>${timeLeft}s wachten...`, "red");
+
+    if(timeLeft <= 0){
+      clearInterval(interval);
+      locked = false;
+      document.getElementById("btn").disabled = false;
+      document.getElementById("result").innerText = "";
+    }
+  },1000);
+}
+
+});
+
+}
+
+function show(text,color){
+let r = document.getElementById("result");
+r.innerHTML = text;
+r.className = color;
+}
+
+function random(arr){
+return arr[Math.floor(Math.random()*arr.length)];
+}
+
+</script>
+
+</body>
+</html>
