@@ -147,7 +147,7 @@ lon: 5.9517,
 next: "https://maps.app.goo.gl/6rsYdBFLkuKFyJ4n9"
 },
 {
-q: "Welkom bij het Emmaus, een oud ontspanningsgebouw voor priesterstudenten. Over ontspanning gesproken; wat eet de rowanleiding het liefste?",
+q: "Welkom bij het Emmaus, een oud ontspanningsgebouw voor priesterstudenten. Over ontspanning gesproken; wat eet de rowanleiding het liefste? Antwoord zonder spaties.",
 a: "frikandellenkapsalon",
 lat: 50.7779,
 lon: 5.9485,
@@ -220,35 +220,36 @@ function check(){
         .toLowerCase()
         .replace(/\s/g,'');
 
-        if(ans === steps[step].a){
+if(ans === steps[step].a){
 
-            step++;
+    let nextLink = steps[step].next;
 
-            localStorage.setItem("step", step);
+    step++;
 
-            if(step >= steps.length){
+    localStorage.setItem("step", step);
 
-                localStorage.clear();
+    if(step >= steps.length){
 
-                document.body.innerHTML = `
-                <h1>🏁 Welkom op het kampterrein</h1>
-                <p>Team ${teamName}, jullie hebben het overleefd… soort van 😈</p>
-                `;
+        localStorage.clear();
 
-                return;
-            }
+        document.body.innerHTML = `
+        <h1>🏁 Welkom op het kampterrein</h1>
+        <p>Team ${teamName}, jullie hebben het overleefd… soort van 😈</p>
+        `;
 
-            show(
-                random(good) +
-                `<br><br>
-                <a href="${steps[step].next}" target="_blank">
-                ➡️ Open volgende locatie
-                </a>`,
-                "green"
-            );
+        return;
+    }
 
-            setTimeout(load, 2500);
+    show(
+        random(good) +
+        `<br><br>
+        <a href="${nextLink}" target="_blank">
+        ➡️ Open volgende locatie
+        </a>`,
+        "green"
+    );
 
+    setTimeout(load, 2500);
         } else {
 
             locked = true;
