@@ -94,10 +94,11 @@ a{
 
 <script>
 
-let testMode = true; // TRUE = thuis testen / FALSE = echte tocht
+let testMode = false; // TRUE = thuis testen / FALSE = echte tocht
 
 let step = 0;
 let locked = false;
+let waitingForArrival = false;
 let teamName = "";
 
 const savedStep = localStorage.getItem("step");
@@ -147,7 +148,7 @@ lon: 5.9517,
 next: "https://maps.app.goo.gl/6rsYdBFLkuKFyJ4n9"
 },
 {
-q: "Welkom bij het Emmaus, een oud ontspanningsgebouw voor priesterstudenten. Over ontspanning gesproken; wat eet de rowanleiding het liefste? Antwoord zonder spaties.",
+q: "Welkom bij het Emmaus, een oud ontspanningsgebouw voor priesterstudenten. Over ontspanning gesproken; wat eet de rowanleiding het liefste?",
 a: "frikandellenkapsalon",
 lat: 50.7779,
 lon: 5.9485,
@@ -167,13 +168,22 @@ function startGame(){
 
 function load(){
 
-    document.getElementById("question").innerText = steps[step].q;
-
     document.getElementById("answer").value = "";
 
     document.getElementById("result").innerHTML = "";
 
     document.getElementById("btn").disabled = false;
+
+    if(waitingForArrival){
+
+        document.getElementById("question").innerHTML =
+        "🚶 Onderweg naar de volgende locatie...";
+
+    } else {
+
+        document.getElementById("question").innerText =
+        steps[step].q;
+    }
 }
 
 function random(arr){
@@ -205,11 +215,23 @@ function check(){
 
         if(!testMode){
 
-            if(distance(lat,lon,steps[step].lat,steps[step].lon) > 0.0007){
+            let dist = distance(lat,lon,steps[step].lat,steps[step].lon);
+
+            if(dist > 0.0007){
 
                 show(random(wrongLocation), "red");
 
                 document.getElementById("btn").disabled = false;
+
+                return;
+            }
+
+            // aangekomen op nieuwe locatie
+            if(waitingForArrival){
+
+                waitingForArrival = false;
+
+                load();
 
                 return;
             }
@@ -220,36 +242,39 @@ function check(){
         .toLowerCase()
         .replace(/\s/g,'');
 
-if(ans === steps[step].a){
+        if(ans === steps[step].a){
 
-    let nextLink = steps[step].next;
+            let nextLink = steps[step].next;
 
-    step++;
+            step++;
 
-    localStorage.setItem("step", step);
+            localStorage.setItem("step", step);
 
-    if(step >= steps.length){
+            if(step >= steps.length){
 
-        localStorage.clear();
+                localStorage.clear();
 
-        document.body.innerHTML = `
-        <h1>🏁 Welkom op het kampterrein</h1>
-        <p>Team ${teamName}, jullie hebben het overleefd… soort van 😈</p>
-        `;
+                document.body.innerHTML = `
+                <h1>🏁 Welkom op het kampterrein</h1>
+                <p>Team ${teamName}, jullie hebben het overleefd… soort van 😈</p>
+                `;
 
-        return;
-    }
+                return;
+            }
 
-    show(
-        random(good) +
-        `<br><br>
-        <a href="${nextLink}" target="_blank">
-        ➡️ Open volgende locatie
-        </a>`,
-        "green"
-    );
+            waitingForArrival = true;
 
-    setTimeout(load, 2500);
+            show(
+                random(good) +
+                `<br><br>
+                <a href="${nextLink}" target="_blank">
+                ➡️ Open volgende locatie
+                </a>`,
+                "green"
+            );
+
+            setTimeout(load, 2500);
+
         } else {
 
             locked = true;
