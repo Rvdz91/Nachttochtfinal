@@ -113,7 +113,7 @@ let testMode = true; // TRUE = thuis testen
 
 let step = 0;
 let locked = false;
-let traveling = false;
+let traveling = true; // tocht start direct met reizen
 let teamName = "";
 
 const savedStep = localStorage.getItem("step");
@@ -123,8 +123,8 @@ if(savedStep){
     step = parseInt(savedStep);
 }
 
-if(savedTravel === "true"){
-    traveling = true;
+if(savedTravel !== null){
+    traveling = savedTravel === "true";
 }
 
 const roasts = [
@@ -194,12 +194,20 @@ function startGame(){
     document.getElementById("start").style.display = "none";
     document.getElementById("game").style.display = "block";
 
+    localStorage.setItem("traveling", "true");
+
+    show(
+        `🗺️ Tijd om te vertrekken.<br><br>
+        <a href="${steps[0].next}" target="_blank">
+        ➡️ Open locatie 1
+        </a>`,
+        "green"
+    );
+
     load();
 }
 
 function load(){
-
-    document.getElementById("result").innerHTML = "";
 
     document.getElementById("btn").disabled = false;
 
@@ -220,6 +228,8 @@ function load(){
         steps[step].q;
 
         document.getElementById("answer").value = "";
+
+        document.getElementById("result").innerHTML = "";
     }
 }
 
@@ -302,8 +312,6 @@ function check(){
 
     if(ans === steps[step].a){
 
-        let nextLink = steps[step].next;
-
         step++;
 
         localStorage.setItem("step", step);
@@ -311,6 +319,8 @@ function check(){
         traveling = true;
 
         localStorage.setItem("traveling", "true");
+
+        let nextLink = steps[step].next;
 
         show(
             random(good) +
