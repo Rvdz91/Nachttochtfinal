@@ -109,11 +109,11 @@ a{
 
 <script>
 
-let testMode = true; // TRUE = thuis testen
+let testMode = true;
 
 let step = 0;
 let locked = false;
-let traveling = true; // tocht start direct met reizen
+let traveling = false;
 let teamName = "";
 
 const savedStep = localStorage.getItem("step");
@@ -158,7 +158,7 @@ q: "Hier ligt Jos, de buurman van Wout. Wat is de voornaam van de persoon waar J
 a: "wilhelmina",
 lat: 50.7549,
 lon: 5.9786,
-next: "https://maps.app.goo.gl/KUdXTVx9LmofmZ9V7",
+link: "https://maps.app.goo.gl/Ni8mWNXPR27B42kK6",
 finish: false
 },
 {
@@ -166,7 +166,7 @@ q: "Joey ligt graag aan een nudistenstrand in zijn vrije tijd. Daarover gesproke
 a: "12000000",
 lat: 50.7725,
 lon: 5.9517,
-next: "https://maps.app.goo.gl/6rsYdBFLkuKFyJ4n9",
+link: "https://maps.app.goo.gl/KUdXTVx9LmofmZ9V7",
 finish: false
 },
 {
@@ -174,7 +174,7 @@ q: "Welkom bij het Emmaus, een oud ontspanningsgebouw voor priesterstudenten. Ov
 a: "frikandellenkapsalon",
 lat: 50.7779,
 lon: 5.9485,
-next: "https://maps.app.goo.gl/ka1CvVrWQDvBPkxQA",
+link: "https://maps.app.goo.gl/6rsYdBFLkuKFyJ4n9",
 finish: false
 },
 {
@@ -182,7 +182,7 @@ q: "",
 a: "",
 lat: 50.7934,
 lon: 5.9265,
-next: "",
+link: "https://maps.app.goo.gl/ka1CvVrWQDvBPkxQA",
 finish: true
 }
 ];
@@ -194,12 +194,14 @@ function startGame(){
     document.getElementById("start").style.display = "none";
     document.getElementById("game").style.display = "block";
 
+    traveling = true;
+
     localStorage.setItem("traveling", "true");
 
     show(
-        `🗺️ Tijd om te vertrekken.<br><br>
-        <a href="${steps[0].next}" target="_blank">
-        ➡️ Open locatie 1
+        `🌙 De tocht begint.<br><br>
+        <a href="${steps[0].link}" target="_blank">
+        ➡️ Open locatie 1: Graf van Jos
         </a>`,
         "green"
     );
@@ -320,12 +322,10 @@ function check(){
 
         localStorage.setItem("traveling", "true");
 
-        let nextLink = steps[step].next;
-
         show(
             random(good) +
             `<br><br>
-            <a href="${nextLink}" target="_blank">
+            <a href="${steps[step].link}" target="_blank">
             ➡️ Open volgende locatie
             </a>`,
             "green"
